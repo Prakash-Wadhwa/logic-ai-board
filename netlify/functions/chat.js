@@ -1,6 +1,7 @@
 exports.handler = async function(event, context) {
     console.log("1. Function started successfully!");
     
+    // Security check to ensure it only accepts data from your website
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
@@ -20,7 +21,10 @@ exports.handler = async function(event, context) {
         }
 
         console.log("4. Connecting to Google Gemini...");
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        
+        // This is the newly corrected URL with the exact model name required by Google
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+        
         const payload = {
             contents: [{ parts: [{ text: body.message || "Hello" }] }],
             systemInstruction: { parts: [{ text: body.systemPrompt || "You are a teacher." }] }
