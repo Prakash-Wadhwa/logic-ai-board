@@ -1,26 +1,29 @@
 exports.handler = async function(event, context) {
+    console.log("1. Function started successfully!");
+    
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
     try {
+        console.log("2. Reading user message...");
         const body = JSON.parse(event.body);
-        const userMessage = body.message;
-        const systemPrompt = body.systemPrompt;
         
+        console.log("3. Checking for API Key...");
         const apiKey = process.env.GEMINI_API_KEY;
 
         if (!apiKey) {
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ reply: "Server error: API key not found in Netlify." })
-            };
+            console.log("🛑 ERROR: API Key is completely missing!");
+            return { statusCode: 500, body: JSON.stringify({ reply: "Error: API key missing" }) };
+        } else {
+            console.log("✅ API Key found!");
         }
 
+        console.log("4. Connecting to Google Gemini...");
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
         const payload = {
-            contents: [{ parts: [{ text: userMessage }] }],
-            systemInstruction: { parts: [{ text: systemPrompt }] }
+            contents: [{ parts: [{ text: body.message || "Hello" }] }],
+            systemInstruction: { parts: [{ text: body.systemPrompt || "You are a teacher." }] }
         };
 
         const response = await fetch(url, {
@@ -29,11 +32,16 @@ exports.handler = async function(event, context) {
             body: JSON.stringify(payload)
         });
 
+        console.log("5. Google responded with status code:", response.status);
+
         if (!response.ok) {
-            throw new Error(`Google API responded with status: ${response.status}`);
+            const errorDetails = await response.text();
+            console.log("🛑 GOOGLE API ERROR:", errorDetails);
+            throw new Error(`Google API rejected the request`);
         }
 
         const data = await response.json();
+        console.log("6. Success! Sending answer back to whiteboard.");
         const botText = data.candidates[0].content.parts[0].text;
 
         return {
@@ -43,9 +51,10 @@ exports.handler = async function(event, context) {
         };
 
     } catch (error) {
+        console.log("🛑 CATCH BLOCK TRIGGERED. The exact error is:", error.message);
         return {
             statusCode: 500,
-            body: JSON.stringify({ reply: "Internal Server Error: Could not reach AI." })
+            body: JSON.stringify({ reply: "Internal Server Error" })
         };
     }
 };
