@@ -20,10 +20,10 @@ exports.handler = async function(event, context) {
             console.log("✅ API Key found!");
         }
 
-        console.log("4. Connecting to Google Gemini...");
+        console.log("4. Connecting to Google Gemini 3 Flash...");
         
-        // This is the newly corrected URL with the exact model name required by Google
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+        // This is the updated URL with the new gemini-3-flash model
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=${apiKey}`;
         
         const payload = {
             contents: [{ parts: [{ text: body.message || "Hello" }] }],
