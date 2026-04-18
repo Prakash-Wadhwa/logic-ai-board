@@ -22,8 +22,8 @@ exports.handler = async function(event, context) {
 
         console.log("4. Connecting to Google Gemini 3 Flash...");
         
-        // This is the updated URL with the new gemini-3-flash model
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=${apiKey}`;
+        // This is the EXACT URL with the correct "-preview" suffix required by Google
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
         
         const payload = {
             contents: [{ parts: [{ text: body.message || "Hello" }] }],
